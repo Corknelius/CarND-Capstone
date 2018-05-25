@@ -138,6 +138,84 @@ ROS package ([link](http://www.ros.org/browse/list.php))
 
 ### Writing ROS Nodes
 
+#### add a ros node hello
+
+```bash
+
+cd ~/catkin_ws/src/simple_arm/
+mkdir scripts
+
+cd scripts
+echo '#!/bin/bash' >> hello
+echo 'echo Hello World' >> hello
+
+chmod u+x hello
+cd ~/catkin_ws
+catkin_make
+source devel/setup.bash
+rosrun simple_arm hello
+
+```
+
+### add a service
+
+[msg](http://wiki.ros.org/msg)
+[service](http://wiki.ros.org/srv)
+[CMakeList.txt](http://wiki.ros.org/catkin/CMakeLists.txt)
+[package.xml](http://wiki.ros.org/catkin/package.xml)
+[action/nonblocking](http://wiki.ros.org/actionlib)
+
+
+The steps to add a new service
+
+1. Define the service data format in the dir `/srv/GoToPosition.srv`
+2. Change CMakeLists.txt to add the service file and its dependencies
+3. Change dependencies also in package.xml
+4. Write the service under `/scripts`
+5. (Optinal) add parameters in launch [file](http://wiki.ros.org/roslaunch/XML), such as `robot_spawn.launch`
+
+```bash
+
+# check camera
+rqt_image_view /rgb_camera/image_raw
+
+# call service (tab complete)
+rosservice call /arm_mover/safe_move "joint_1: 1.57
+joint_2: 1.57"
+
+```
+
+
+### logging
+
+[logging](http://wiki.ros.org/rospy/Overview/Logging)
+
+By default all logging messages for a node are written to the node's log file
+which can be found in `~/.ros/log or ROS_ROOT/log`.
+If roscore is running, you can use roscd to find log
+file directory by opening a new terminal window and typing:
+
+```bash
+
+roscd log
+
+# see in real time in rosout
+rostopic echo /rosout
+
+rospy.init_node('my_node', log_level=rospy.DEBUG)
+
+<!-- The look away node -->
+<node name="look_away" type="look_away" pkg="simple_arm" output="screen"/>
+
+```
+
+ROS WIKI
+ROS Answer
+ROS cheetsheet
+A gentle Introduction to ROS
+
+
+
 
 
 
