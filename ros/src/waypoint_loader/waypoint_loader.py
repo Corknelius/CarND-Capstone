@@ -54,6 +54,9 @@ class WaypointLoader(object):
             float64 x
             float64 y
             float64 z
+
+    Not sure the meaning of twist, might represent the velocity in
+    the perspective of linear coordinate and angular coordinate
     """
 
     def __init__(self):
@@ -108,6 +111,9 @@ class WaypointLoader(object):
         for wp in waypoints[:-1][::-1]:
             dist = self.distance(wp.pose.pose.position,
                                  last.pose.pose.position)
+
+            # Given MAX_DECEL, calculate max vel possible at current wp
+            # so that we can decelerate to zero at the last wp.
             vel = math.sqrt(2 * MAX_DECEL * dist)
             if vel < 1.:
                 vel = 0.
