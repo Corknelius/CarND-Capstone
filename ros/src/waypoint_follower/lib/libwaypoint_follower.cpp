@@ -30,6 +30,9 @@
 
 #include "libwaypoint_follower.h"
 
+/**
+* get the size of waypoint
+*/
 int WayPoints::getSize() const
 {
   if (current_waypoints_.waypoints.empty())
@@ -38,6 +41,10 @@ int WayPoints::getSize() const
     return current_waypoints_.waypoints.size();
 }
 
+
+/**
+* get the distance of the first two waypoints
+*/
 double WayPoints::getInterval() const
 {
   if (current_waypoints_.waypoints.empty())
@@ -52,6 +59,10 @@ double WayPoints::getInterval() const
   return tf::tfDistance(v1, v2);
 }
 
+
+/**
+* get the waypoints in index position [waypoint]
+*/
 geometry_msgs::Point WayPoints::getWaypointPosition(int waypoint) const
 {
   geometry_msgs::Point p;
@@ -116,10 +127,13 @@ double DecelerateVelocity(double distance, double prev_velocity)
 }
 
 // calculation relative coordinate of point from current_pose frame
+// calculate the projection of point_msg on current_pos
 geometry_msgs::Point calcRelativeCoordinate(geometry_msgs::Point point_msg, geometry_msgs::Pose current_pose)
 {
   tf::Transform inverse;
+  // convert point_msg to Vector3 (x, y, z)
   tf::poseMsgToTF(current_pose, inverse);
+  // inverse of a vector, (x, y, z) / len(vec)
   tf::Transform transform = inverse.inverse();
 
   tf::Point p;
@@ -261,12 +275,15 @@ bool getLinearEquation(geometry_msgs::Point start, geometry_msgs::Point end, dou
 
   return true;
 }
+
+
 double getDistanceBetweenLineAndPoint(geometry_msgs::Point point, double a, double b, double c)
 {
   double d = fabs(a * point.x + b * point.y + c) / sqrt(pow(a, 2) + pow(b, 2));
 
   return d;
 }
+
 
 tf::Vector3 point2vector(geometry_msgs::Point point)
 {
@@ -283,6 +300,7 @@ geometry_msgs::Point vector2point(tf::Vector3 vector)
   return point;
 }
 
+
 tf::Vector3 rotateUnitVector(tf::Vector3 unit_vector, double degree)
 {
   tf::Vector3 w1(cos(deg2rad(degree)) * unit_vector.getX() - sin(deg2rad(degree)) * unit_vector.getY(),
@@ -291,6 +309,7 @@ tf::Vector3 rotateUnitVector(tf::Vector3 unit_vector, double degree)
 
   return unit_w1;
 }
+
 
 geometry_msgs::Point rotatePoint(geometry_msgs::Point point, double degree)
 {

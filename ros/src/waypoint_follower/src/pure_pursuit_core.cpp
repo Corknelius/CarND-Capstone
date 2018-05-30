@@ -54,6 +54,10 @@ void PurePursuit::callbackFromWayPoints(const styx_msgs::LaneConstPtr &msg)
   // ROS_INFO_STREAM("waypoint subscribed");
 }
 
+
+/**
+* get the velocity of waypoints in position [waypoint]
+*/
 double PurePursuit::getCmdVelocity(int waypoint) const
 {
   if (current_waypoints_.isEmpty())
@@ -67,6 +71,11 @@ double PurePursuit::getCmdVelocity(int waypoint) const
   return velocity;
 }
 
+
+/**
+* get the lookahead distance according to current velocity
+* check 10 seconds at most, min_dist at least and lookahead_distance_calc_ratio_ expected
+*/
 void PurePursuit::calcLookaheadDistance(int waypoint)
 {
   double current_velocity_mps = current_velocity_.twist.linear.x;
@@ -82,6 +91,11 @@ void PurePursuit::calcLookaheadDistance(int waypoint)
   return ;
 }
 
+
+/**
+* TODO: what is 2y / d**2 ?
+* Paper: Implementation of the Pure Pursuit Path Tracking Algorithm
+*/
 double PurePursuit::calcCurvature(geometry_msgs::Point target) const
 {
   double kappa;
@@ -229,6 +243,8 @@ bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point 
   }
 }
 
+
+
 bool PurePursuit::verifyFollowing() const
 {
   double a = 0;
@@ -249,6 +265,8 @@ bool PurePursuit::verifyFollowing() const
     return false;
   }
 }
+
+
 geometry_msgs::Twist PurePursuit::calcTwist(double curvature, double cmd_velocity) const
 {
   // verify whether vehicle is following the path
@@ -270,6 +288,7 @@ geometry_msgs::Twist PurePursuit::calcTwist(double curvature, double cmd_velocit
   prev_angular_velocity = twist.angular.z;
   return twist;
 }
+
 
 void PurePursuit::getNextWaypoint()
 {
@@ -315,6 +334,8 @@ geometry_msgs::TwistStamped PurePursuit::outputZero() const
   twist.header.stamp = ros::Time::now();
   return twist;
 }
+
+
 geometry_msgs::TwistStamped PurePursuit::outputTwist(geometry_msgs::Twist t) const
 {
   double g_lateral_accel_limit = 5.0;
@@ -338,12 +359,12 @@ geometry_msgs::TwistStamped PurePursuit::outputTwist(geometry_msgs::Twist t) con
   double a = v * omega;
   ROS_INFO("lateral accel = %lf", a);
 
-  twist.twist.linear.x = fabs(a) > g_lateral_accel_limit ? max_v
-                    : v;
+  twist.twist.linear.x = fabs(a) > g_lateral_accel_limit ? max_v: v;
   twist.twist.angular.z = omega;
 
   return twist;
 }
+
 
 geometry_msgs::TwistStamped PurePursuit::go()
 {

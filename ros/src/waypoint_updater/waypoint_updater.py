@@ -50,7 +50,9 @@ class WaypointUpdater(object):
         self.waypoints_2d = None  # only has info about (x, y)
         self.waypoint_tree = None  # KDtree for waypoints
 
-        rospy.spin()
+        # do need spin to trigger callbacks ?
+        # rospy.spin()
+        rospy.loop()
 
     def loop(self):
         rate = rospy.Rate(50)
