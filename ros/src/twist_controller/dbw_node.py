@@ -41,6 +41,16 @@ class DBWNode(object):
     def __init__(self):
         rospy.init_node('dbw_node')
 
+        """
+        brake_deadband: the minimum brake value that has effects
+        wheel_base: the distance between centers of front and rear wheels
+        steer_ratio: ratio of degrees of turn of the steering wheel to
+                     the turn of the wheel
+        max_lat_accel: max lateral acceleration.
+                       The acceleration vertical to car's heading
+                       lat_accel = linear_vel * yaw_rate
+                       hpwizard.com/lateral-acceleration.html
+        """
         vehicle_mass = rospy.get_param('~vehicle_mass', 1736.35)
         fuel_capacity = rospy.get_param('~fuel_capacity', 13.5)
         brake_deadband = rospy.get_param('~brake_deadband', .1)

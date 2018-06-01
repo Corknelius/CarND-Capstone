@@ -74,7 +74,7 @@ class Controller(object):
             # Acceleration ~ 1m/s^2
             brake = 400
 
-        elif throttle < 0.1 and vel_error < 0:
+        elif throttle < 0.1 and vel_error < 0:  # going too fast
             throttle = 0
             decel = max(vel_error, self.decel_limit)
             # Torque N * m
