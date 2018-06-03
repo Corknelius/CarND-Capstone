@@ -22,13 +22,13 @@ class TLDetector(object):
 
         self.pose = None
         self.waypoints = None
-        self.waypoints_2D = None
+        self.waypoints_2d = None
         self.waypoints_tree = None
         self.camera_image = None
         self.lights = []
 
-        sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
-        sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
+        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
+        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
 
         '''
         /vehicle/traffic_lights provides you with the location of the traffic
@@ -38,9 +38,9 @@ class TLDetector(object):
         the vehicle, the color state will not be available. You'll need to
         rely on the position of the light and the camera image to predict it.
         '''
-        sub3 = rospy.Subscriber('/vehicle/traffic_lights',
-                                TrafficLightArray, self.traffic_cb)
-        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb)
+        rospy.Subscriber('/vehicle/traffic_lights',
+                         TrafficLightArray, self.traffic_cb)
+        rospy.Subscriber('/image_color', Image, self.image_cb)
 
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
@@ -133,6 +133,7 @@ class TLDetector(object):
         """
 
         # for testing
+        rospy.logwarn("light state {}".format(light.state))
         return light.state
 
         """
