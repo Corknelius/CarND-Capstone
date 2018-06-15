@@ -72,7 +72,7 @@ class Controller(object):
             throttle = 0
             # N*m - to hold car in place if we are stopped at a light
             # Acceleration ~ 1m/s^2
-            brake = 400
+            brake = 700
 
         elif throttle < 0.1 and vel_error < 0:  # going too fast
             throttle = 0
