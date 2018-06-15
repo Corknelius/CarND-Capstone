@@ -76,7 +76,7 @@ class WaypointUpdater(object):
         closest_coord = self.waypoints_2d[closest_idx]
         prev_coord = self.waypoints_2d[closest_idx - 1]
 
-        # Equation for hyperplace through closest_coords
+        # Equation for hyperplane through closest_coords
         cl_vect = np.array(closest_coord)
         prev_vect = np.array(prev_coord)
         pos_vect = np.array([x, y])
