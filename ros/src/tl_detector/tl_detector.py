@@ -41,6 +41,7 @@ class TLDetector(object):
         '''
         rospy.Subscriber('/vehicle/traffic_lights',
                          TrafficLightArray, self.traffic_cb)
+        #TODO CAEd: you may want to consider other image formats to feed into classifier
         rospy.Subscriber('/image_color', Image, self.image_cb)
 
         config_string = rospy.get_param("/traffic_light_config")
@@ -50,6 +51,8 @@ class TLDetector(object):
             rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
+        '''CAEd: set up classifier'''
+        #TODO: Update parameters for TLClassifier as necessary
         self.light_classifier = TLClassifier()
         self.listener = tf.TransformListener()
 
@@ -63,7 +66,12 @@ class TLDetector(object):
     def loop(self):
         rate = rospy.Rate(5)
         while not rospy.is_shutdown():
+
+            # TODO: will need to process traffic lights
+            # CAEd: publish traffic light handles what the WP should be
+            # based on the processed TL
             self.publish_traffic_light()
+
             rate.sleep()
 
     def pose_cb(self, msg):
@@ -100,12 +108,23 @@ class TLDetector(object):
         of times till we start using it. Otherwise the previous stable state is
         used.
         '''
+        #TODO CAEd: update code to include slow-down when seeing yellow light
         if self.state != state:
             self.state_count = 0
             self.state = state
         elif self.state_count >= STATE_COUNT_THRESHOLD:
+            #if state == TrafficLight.RED: then stop
+            #elif state == TrafficLight.YELLOW: then slow down
+            # QUESTION: Should there be more logic for lining up with the line WP?
+            #elif state == TrafficLight.GREEN: then go
+            #else: ???
             self.last_state = self.state
+            '''
+            if light status is red or yellow, set the waypoint to line_wp
+            otherwise, -1
+            '''
             line_wp = line_wp if state == TrafficLight.RED else -1
+
             self.last_wp = line_wp
             self.upcoming_red_light_pub.publish(Int32(line_wp))
         else:
@@ -124,6 +143,7 @@ class TLDetector(object):
 
         """
         # TODO implement
+        # CAEd walkthrough recommends reuse code from section 1 KD Trees
         closest_dx = self.waypoint_tree.query([x, y], 1)[1]
 
         return closest_dx
@@ -140,10 +160,13 @@ class TLDetector(object):
 
         """
 
-        # for testing
+        # CAEd: ONLY FOR TESTING
+        # TODO: Is there a parameter for prelim testing vs using simulator vs using real data?
+        # For testing, just return the light state
         # rospy.logwarn("light state {}".format(light.state))
         return light.state
 
+        #TODO CAEd: implement section below when not testing.
         """
         if(not self.has_image):
             self.prev_light_loc = None
