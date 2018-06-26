@@ -24,12 +24,12 @@ Please use **one** of the two installation options, either native **or** docker 
 
 Build the docker container
 ```bash
-docker build . -t capstone
+sudo docker build . -t capstone
 ```
 
 Run the docker file
 ```bash
-docker run -p 4567:4567 -v $PWD:/capstone -v /tmp/log:/root/.ros/ --rm -it capstone
+sudo docker run -p 4567:4567 -v $PWD:/capstone -v /tmp/log:/root/.ros/ --rm -it capstone
 ```
 
 ### Port Forwarding
@@ -47,6 +47,9 @@ git clone https://github.com/udacity/CarND-Capstone.git
 cd CarND-Capstone
 pip install -r requirements.txt
 ```
+**CAEd NOTE** Make sure you're using Python2. Run `which python` to see what was set. You may need to edit your `./bashrc` file to see if a miniconda or anaconda environment is forcing you to use a specific version of python. Also see which folder your `/usr/bin/python` is pointing.
+
+
 3. Make and run styx
 ```bash
 cd ros

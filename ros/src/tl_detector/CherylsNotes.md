@@ -11,7 +11,7 @@
 Capstone Project uses TF v1.3. From Object Detection lab, the models in the provided [model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) are no longer compatible with v1.3 (at the time June 2018, they are compatible with v1.5). Need to find the v1.3 models and download them locally.
 
 #### TF v1.3 Compatible Models
-Note: These models were from the [object detection lab](https://github.com/udacity/CarND-Object-Detection-Lab/blob/master/CarND-Object-Detection-Lab.ipynb)
+Note: These models were referenced in the [object detection lab](https://github.com/udacity/CarND-Object-Detection-Lab/blob/master/CarND-Object-Detection-Lab.ipynb)
 
 **Went through TF Commit Logs to find model zoo version that was compatible with TF v1.4 (that worked with object detection lab)**
 
