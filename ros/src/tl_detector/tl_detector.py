@@ -64,7 +64,7 @@ class TLDetector(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(5)
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown():
 
             # TODO: will need to process traffic lights
@@ -142,8 +142,22 @@ class TLDetector(object):
             int: index of the closest waypoint in self.waypoints
 
         """
-        # TODO implement
+        # TODO implement - CAEd: believe this is complete
+        """
+        CAE: From wiki site, this is the brute force method:
+        minDist = infinity
+        for i = 1 to length(P) - 1
+         for j = i + 1 to length(P)
+          let p = P[i], q = P[j]
+          if dist(p, q) < minDist:
+           minDist = dist(p, q)
+           closestPair = (p, q)
+        return closestPair
+        """
+
         # CAEd walkthrough recommends reuse code from section 1 KD Trees
+        # CAEd: Not sure what exactly needs to be implemented. KD tree is
+        # being used and function is properly called.
         closest_dx = self.waypoint_tree.query([x, y], 1)[1]
 
         return closest_dx
@@ -160,11 +174,11 @@ class TLDetector(object):
 
         """
 
-        # CAEd: ONLY FOR TESTING
+
         # TODO: Is there a parameter for prelim testing vs using simulator vs using real data?
         # For testing, just return the light state
         # rospy.logwarn("light state {}".format(light.state))
-        return light.state
+
 
         #TODO CAEd: implement section below when not testing.
         """
@@ -174,9 +188,16 @@ class TLDetector(object):
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
+        # Identify traffic traffic light closest to image center
+        # This assumes there is a traffic light for every lane and in a Lane
+        # This does not assume that left turn lights are at a corner.
+        cv_image_roi = self.locate_light_in_image(cv_image)
+
         # Get classification
-        return self.light_classifier.get_classification(cv_image)
+        return self.light_classifier.get_classification(cv_image_roi)
         """
+        # CAEd: ONLY FOR TESTING
+        return light.state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -191,6 +212,7 @@ class TLDetector(object):
         """
         closest_light = None
         line_wp_idx = None
+        state = TrafficLight.UNKNOWN
 
         # List of positions that correspond to the line to stop in front of
         # for a given intersection

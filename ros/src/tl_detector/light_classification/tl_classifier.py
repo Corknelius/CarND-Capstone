@@ -27,7 +27,7 @@ class TLClassifier(object):
                 - Convert images to specific color spaces
                     -RGB to isolate Red and Green
                     -XXX to isolate yellow (like in find lane lines assignment)
-                - See which color is light (brightest 3-space value)
+                - See which color is lit (brightest 3-space value)
             - Machine Learning
                 - Similar to traffic lights Assignment
                 - Feed detected light image with associated label (from simulation data) to classifier
