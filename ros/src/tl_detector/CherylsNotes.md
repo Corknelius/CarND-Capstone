@@ -131,3 +131,34 @@ Note that the second track does not send any camera data.
 #### Topics in DBW bagfile
 
 #### Topics in Traffic Light bagfile
+
+------------------------
+## labelImg
+This is a tool to annotate imagery for the classifier. Tool may be found here:
+https://github.com/tzutalin/labelImg
+
+
+Use the following command to create or run a docker container with the labelImg program
+```
+sudo docker run -it \
+--user $(id -u) \
+-e DISPLAY=unix$DISPLAY \
+--workdir=$(pwd) \
+--volume="/home/$USER:/home/$USER" \
+--volume="/etc/group:/etc/group:ro" \
+--volume="/etc/passwd:/etc/passwd:ro" \
+--volume="/etc/shadow:/etc/shadow:ro" \
+--volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
+-v /tmp/.X11-unix:/tmp/.X11-unix \
+tzutalin/py2qt4
+```
+
+Then use the following command to create the program (you can skip this if you already done so)
+```
+make qt4py2
+```
+
+The call the program
+```
+./labelImg.py
+```
