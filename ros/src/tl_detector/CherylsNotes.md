@@ -137,8 +137,13 @@ Note that the second track does not send any camera data.
 This is a tool to annotate imagery for the classifier. Tool may be found here:
 https://github.com/tzutalin/labelImg
 
+First you will need to check out the git repository
 
-Use the following command to create or run a docker container with the labelImg program
+
+Then you will need to go to that repository directory
+
+
+Then use the following command to create or run a docker container with the labelImg program
 ```
 sudo docker run -it \
 --user $(id -u) \
@@ -162,3 +167,55 @@ The call the program
 ```
 ./labelImg.py
 ```
+----------------------------
+## Bosch Datasets
+Note that the bosch data set is in parts. You will need to put the partial zip files in a common directory and fuse them together.
+
+Link to datasets:
+https://hci.iwr.uni-heidelberg.de/node/6132/download/4230201a07fab2fb9acdcee4f2dd9cd8
+
+**NOTE**: This link will be accessible until Wed, 07/04/2018 - 07:54. If you need
+access after the link expires, don't hesitate to revisit the download page on
+https://hci.iwr.uni-heidelberg.de/
+
+**Training Data**
+```
+cd /home/cheryl/Development/TL_data/bosch/train
+cat dataset_train_rgb.zip.* > dataset_train_rgb.zip
+```
+**Testing Data**
+```
+cd /home/cheryl/Development/TL_data/bosch/test
+cat dataset_test_rgb.zip.* > dataset_test_rgb.zip
+```
+
+**Strategy: MANGLE YAML Label DATA!**
+You will need to go through the .yaml files to find and replace labels
+```
+RedLeft -> Red
+RedRight -> Red  
+RedStraight -> Red
+GreenLeft -> Green
+GreenRight -> Green
+GreenStraight -> Green
+```
+
+**convert dataset to TF Record file**
+Bosch Training Set
+```
+python create_tf_record.py \
+ --data_dir=/home/cheryl/Development/TL_model_make/data/bosch/train/train.yaml \
+  --output_path=/home/cheryl/Development/TL_model_make/data/bosch/bosch_train.record \
+   --label_map_path=/home/cheryl/Development/TL_model_make/data/udacity_label_map.pbtxt
+```
+Bosch Testing Set
+```
+python create_tf_record.py \
+ --data_dir=/home/cheryl/Development/TL_model_make/data/bosch/test/test.yaml \
+  --output_path=/home/cheryl/Development/TL_model_make/data/bosch/bosch_test.record \
+   --label_map_path=/home/cheryl/Development/TL_model_make/data/udacity_label_map.pbtxt
+```
+-----
+--------------
+ProtoBuf 3.4
+https://github.com/google/protobuf/releases/tag/v3.4.0
