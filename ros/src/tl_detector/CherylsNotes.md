@@ -7,7 +7,15 @@
 - Need to see if referenced pre-trained models work with TF v1.3 or figure out a way to port it to work with TF v1.3
 
 ----------------------------
+Run the Project
+```bash
+cd ros
+catkin_make
+source devel/setup.sh
+roslaunch launch/styx.launch
+```
 
+--------
 ## Tensorflow Object Detection API
 
 #### Model Versions
@@ -55,22 +63,24 @@ Instructions from Assignment [25.13](https://classroom.udacity.com/nanodegrees/n
 1. [Traffic Light Detection video](https://drive.google.com/file/d/0B2_h37bMVw3iYkdJTlRSUlJIamM/view?usp=sharing) from lesson [25.15](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/undefined/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/project)
 2. [DBW test set](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/files/reference.bag.zip) from lesson [25.6](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/undefined/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/877ed434-6955-4371-afcc-ff5b8769f0ce)
 
-#### Extracting Rosbag Images
+#### Extracting Rosbag Images & save to video
 Motivation is for Training/Testing offline (separate of ROS, i.e. in a jupyter notebook)
 
 See this useful post from [GitHub](https://stackoverflow.com/questions/22346013/how-to-extract-image-frames-from-a-bagfile)
 
 
-This was my image topic /front_camera/camera/image_raw/compressed. This is what i had to do:
-
-1. In a directory in which is writable (~/catkin_ws/bagfiles) type in the terminal
+1. In a directory in which is writable (i.e. ~/catkin_ws/bagfiles) type in the terminal
 ```
-rosrun image_view extract_images image:=/front_camera/camera/image_raw _image_transport:=compressed
+rosrun image_view image_saver _sec_per_frame:=0.01 image:=/image_raw
 ```
 2. Then play the bagfile.(Though it can be done before or after) Then in the terminal in which rosrun was executed the following appears:
 ```
 > [ INFO] [1394806321.162974947]: Saved image frame0467.jpg
 " The frames were made in that directory. process completed."
+```
+3. Save to video
+```
+ffmpeg -framerate 25 -pattern_type glob -i "*.jpg" -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p carla_tl_loop.mp4
 ```
 
 #### Saving rostopic to text files
@@ -78,60 +88,6 @@ rosrun image_view extract_images image:=/front_camera/camera/image_raw _image_tr
 rosbag play mybag.bag
 rostopic echo /foo > output.txt
 ```
-----------------------------
-
-## Useful Links
-#### Port Forwarding between VM and your simulator (on local machine)
-[EKF Assignment Module 3](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/16cf4a78-4fc7-49e1-8621-3450ca938b77)
-
-#### Instructions on running Test Lot in lesson [25.6](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/877ed434-6955-4371-afcc-ff5b8769f0ce)
-
-The CarND-Capstone/ros/src/waypoint_loader/launch/waypoint_loader.launch file is set up to load the waypoints for the first track. To test using the second track, you will need to change
-
-```xml
-<param name="path" value="$(find styx)../../../data/wp_yaw_const.csv" />
-```
-
-to use the churchlot_with_cars.csv as follows:
-```xml
-<param name="path" value="$(find styx)../../../data/churchlot_with_cars.csv"/>
-```
-Note that the second track does not send any camera data.
-
-
----------------------------------
-## rostopic
-
-#### Topics when running Simulator
-```
-/base_waypoints
-/current_pose
-/current_velocity
-/final_waypoints
-/image_color
-/rosout
-/rosout_agg
-/tf
-/tf_static
-/traffic_waypoint
-/twist_cmd
-/vehicle/brake_cmd
-/vehicle/brake_report
-/vehicle/dbw_enabled
-/vehicle/lidar
-/vehicle/obstacle
-/vehicle/obstacle_points
-/vehicle/steering_cmd
-/vehicle/steering_report
-/vehicle/throttle_cmd
-/vehicle/throttle_report
-/vehicle/traffic_lights
-```
-
-#### Topics in DBW bagfile
-
-#### Topics in Traffic Light bagfile
-
 ------------------------
 ## labelImg
 This is a tool to annotate imagery for the classifier. Tool may be found here:

@@ -11,7 +11,7 @@ import tf
 import cv2
 import yaml
 from scipy.spatial import KDTree
-
+import time
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -51,9 +51,22 @@ class TLDetector(object):
             rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
-        '''CAEd: set up classifier'''
-        #TODO: Update parameters for TLClassifier as necessary
-        self.light_classifier = TLClassifier()
+        #-----------------------------
+        # CAEd: set up classifier
+        #------------------------------
+        model_location = rospy.get_param('~model_location', '../../../models/ssd_inception_v2_coco_11_06_2017/frozen_inference_graph.pb')
+        model_filter = rospy.get_param('~model_filter', 10)
+        min_score = rospy.get_param('~min_score', 0.5)
+        TL_color_method = rospy.get_param('~TL_color_method', 1)
+        TL_color_model = rospy.get_param('~TL_color_model', 'None')
+        roi_x = rospy.get_param('~roi_x', 0)
+        roi_y = rospy.get_param('~roi_y', 0)
+        roi_width = rospy.get_param('~roi_width', 800 )
+        roi_height = rospy.get_param('~roi_height', 600)
+        self.light_classifier = TLClassifier(model_location,model_filter, min_score,
+                            TL_color_method, TL_color_model,
+                            roi_x, roi_y, roi_width, roi_height)
+
         self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
@@ -68,8 +81,6 @@ class TLDetector(object):
         while not rospy.is_shutdown():
 
             # TODO: will need to process traffic lights
-            # CAEd: publish traffic light handles what the WP should be
-            # based on the processed TL
             self.publish_traffic_light()
 
             rate.sleep()
@@ -142,19 +153,7 @@ class TLDetector(object):
             int: index of the closest waypoint in self.waypoints
 
         """
-        # TODO implement - CAEd: believe this is complete
-        """
-        CAE: From wiki site, this is the brute force method:
-        minDist = infinity
-        for i = 1 to length(P) - 1
-         for j = i + 1 to length(P)
-          let p = P[i], q = P[j]
-          if dist(p, q) < minDist:
-           minDist = dist(p, q)
-           closestPair = (p, q)
-        return closestPair
-        """
-
+        # TODO implement
         # CAEd walkthrough recommends reuse code from section 1 KD Trees
         # CAEd: Not sure what exactly needs to be implemented. KD tree is
         # being used and function is properly called.
@@ -181,23 +180,25 @@ class TLDetector(object):
 
 
         #TODO CAEd: implement section below when not testing.
-        """
+
         if(not self.has_image):
             self.prev_light_loc = None
             return False
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
-        # Identify traffic traffic light closest to image center
-        # This assumes there is a traffic light for every lane and in a Lane
-        # This does not assume that left turn lights are at a corner.
-        cv_image_roi = self.locate_light_in_image(cv_image)
-
         # Get classification
-        return self.light_classifier.get_classification(cv_image_roi)
-        """
+        time0 = time.time()
+        detected_state =  self.light_classifier.get_classification(cv_image)
+        time1 = time.time()
+        
+        print("[tl_classifer::get_classification] Time in milliseconds: ", (time1 - time0) * 1000)
+        print("[tl_detector::get_light_state] Detected: %d, Actual: %d" % (detected_state, light.state))
+
         # CAEd: ONLY FOR TESTING
-        return light.state
+        detected_state = light.state
+
+        return detected_state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
