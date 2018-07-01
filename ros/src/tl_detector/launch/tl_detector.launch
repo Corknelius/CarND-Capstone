@@ -64,6 +64,7 @@
       -->
     <!-- CAEd Added this node tag so that I can see what is being detected through RViz -->
 
+    <!--
     <node pkg="tl_detector" type="light_publisher.py" name="light_publisher" output="screen" cwd="node"/>
-
+  -->
 </launch>
