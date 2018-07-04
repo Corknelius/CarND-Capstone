@@ -1,4 +1,70 @@
 <?xml version="1.0"?>
 <launch>
     <node pkg="tl_detector" type="tl_detector.py" name="tl_detector" output="screen" cwd="node"/>
+      <!--CAEd: Params added to load model and configuration into ROS-->
+      <!--model_location: relative path location to pre-trained model
+
+          model_filter:   if using out-of-box pretrain models,
+                          identify class number for traffic light.
+                          i.e. For models trained with coco dataset, TL class is 10. Light color will be determined using CV methods
+                          TODO: if using re-trained models (transfer learning), set to -1.
+
+         min_score:       mininimum score of detected class to be considered valid detection
+
+         TL_color_method: if model_filter is not set to -1, we will be implementing another
+                          process to determine the light color. Value will be ignored if model_filter is -1
+                          Set to:
+                          1 - if we are using pre-determine image processing
+                          TODO: 2 - if we are using a keras model. you will need to set TL_color_model below
+
+         TODO TL_color_model:  relative path location to keras model for tl color classification
+                          Value will be ignored if model_filter=-1 OR TL_color_method=1
+
+         roi_x:           Upper-Left Location of ROI corner point. In pixel coordinates
+
+         roi_y:           Upper-Left Location of ROI corner point. In pixel coordinates
+
+         roi_width:       Width of ROI to run detection on input image. In pixel units
+
+         roi_height:      Height of ROI to run detection on input image. In pixel units
+
+         image_adjust:     Switch on/off any pre-determined image adjustments to help with detection
+      -->
+      <!--SSD out of box-->
+      <param name="model_location" type="str" value="$(find tl_detector)../../../models/ssd_inception_v2_coco_11_06_2017/frozen_inference_graph.pb" />
+      <param name="model_filter" type="int" value="10" />
+      <param name="min_score" type="double" value="0.2" />
+      <param name="TL_color_method" type="int" value="1" />
+      <!--<param name="TL_color_model" type="str" value="10" />-->
+      <param name="roi_x" type="int" value="0" />
+      <param name="roi_y" type="int" value="0" />
+      <param name="roi_width" type="int" value="800" />
+      <param name="roi_height" type="int" value="600" />
+      <!--<param name="image_adjust" type="bool" value="FALSE" />-->
+
+      <!--F-RCNN Resnet out of box for simulation-->
+      <!--
+      <param name="model_location" type="str" value="$(find tl_detector)../../../models/faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017/frozen_inference_graph.pb" />
+      <param name="model_filter" type="int" value="10" />
+      <param name="roi_x" type="int" value="0" />
+      <param name="roi_y" type="int" value="0" />
+      <param name="roi_width" type="int" value="800" />
+      <param name="roi_height" type="int" value="600" />
+      <param name="image_adjust" type="bool" value="FALSE" />
+      -->
+      <!--RFCN Resnet out of box for simulation-->
+      <!--
+      <param name="model_location" type="str" value="$(find tl_detector)../../../models/rfcn_resnet101_coco_11_06_2017/frozen_inference_graph.pb" />
+      <param name="model_filter" type="int" value="10" />
+      <param name="roi_x" type="int" value="0" />
+      <param name="roi_y" type="int" value="0" />
+      <param name="roi_width" type="int" value="800" />
+      <param name="roi_height" type="int" value="600" />
+      <param name="image_adjust" type="bool" value="FALSE" />
+      -->
+    <!-- CAEd Added this node tag so that I can see what is being detected through RViz -->
+
+    <!--
+    <node pkg="tl_detector" type="light_publisher.py" name="light_publisher" output="screen" cwd="node"/>
+  -->
 </launch>
