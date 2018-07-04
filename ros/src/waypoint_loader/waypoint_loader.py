@@ -65,6 +65,7 @@ class WaypointLoader(object):
         self.pub = rospy.Publisher('/base_waypoints', Lane,
                                    queue_size=1, latch=True)
 
+        # 40 km/h, around 11.11 m/s
         self.velocity = self.kmph2mps(rospy.get_param('~velocity'))
         # file data/wp_yaw_const.csv
         self.new_waypoint_loader(rospy.get_param('~path'))
