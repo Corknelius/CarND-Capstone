@@ -52,15 +52,17 @@ class TLDetector(object):
 
         self.bridge = CvBridge()
         # CAEd: set up classifier
-        model_location = rospy.get_param('~model_location', '../../../models/ssd_inception_v2_coco_11_06_2017/frozen_inference_graph.pb')
-        model_filter = rospy.get_param('~model_filter', 10)
-        min_score = rospy.get_param('~min_score', 0.5)
-        TL_color_method = rospy.get_param('~TL_color_method', 1)
-        TL_color_model = rospy.get_param('~TL_color_model', 'None')
-        roi_x = rospy.get_param('~roi_x', 0)
-        roi_y = rospy.get_param('~roi_y', 0)
-        roi_width = rospy.get_param('~roi_width', 800)
-        roi_height = rospy.get_param('~roi_height', 600)
+        # full_param_name = rospy.search_param('model_location')
+        # print("Full_Param Name: %s " % full_param_name)
+        model_location = rospy.get_param("/model_location", '../../../models/ssd_inception_v2_coco_11_06_2017/frozen_inference_graph.pb')
+        model_filter = rospy.get_param("/model_filter", 10)
+        min_score = rospy.get_param("/min_score", 0.5)
+        TL_color_method = rospy.get_param("/TL_color_method", 1)
+        TL_color_model = rospy.get_param("/TL_color_mode'", 'None')
+        roi_x = rospy.get_param("/roi_x", 0)
+        roi_y = rospy.get_param("/roi_y", 0)
+        roi_width = rospy.get_param("/roi_width", 800)
+        roi_height = rospy.get_param("/roi_height", 600)
         self.light_classifier =\
             TLClassifier(model_location, model_filter, min_score,
                          TL_color_method, TL_color_model,
@@ -200,7 +202,7 @@ class TLDetector(object):
               (time1 - time0) * 1000)
         print("[tl_detector::get_light_state] Detected: %d, Actual: %d" % (
             detected_state, light.state))
-        
+
         # CAEd: ONLY FOR TESTING
         detected_state = light.state
 
