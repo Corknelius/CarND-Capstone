@@ -42,26 +42,7 @@
       <param name="roi_height" type="int" value="600" />
       <!--<param name="image_adjust" type="bool" value="FALSE" />-->
 
-      <!--F-RCNN Resnet out of box for simulation-->
-      <!--
-      <param name="model_location" type="str" value="$(find tl_detector)../../../models/faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017/frozen_inference_graph.pb" />
-      <param name="model_filter" type="int" value="10" />
-      <param name="roi_x" type="int" value="0" />
-      <param name="roi_y" type="int" value="0" />
-      <param name="roi_width" type="int" value="800" />
-      <param name="roi_height" type="int" value="600" />
-      <param name="image_adjust" type="bool" value="FALSE" />
-      -->
-      <!--RFCN Resnet out of box for simulation-->
-      <!--
-      <param name="model_location" type="str" value="$(find tl_detector)../../../models/rfcn_resnet101_coco_11_06_2017/frozen_inference_graph.pb" />
-      <param name="model_filter" type="int" value="10" />
-      <param name="roi_x" type="int" value="0" />
-      <param name="roi_y" type="int" value="0" />
-      <param name="roi_width" type="int" value="800" />
-      <param name="roi_height" type="int" value="600" />
-      <param name="image_adjust" type="bool" value="FALSE" />
-      -->
+
     <!-- CAEd Added this node tag so that I can see what is being detected through RViz -->
 
     <!--

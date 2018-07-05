@@ -41,7 +41,7 @@ class TLDetector(object):
         '''
         rospy.Subscriber('/vehicle/traffic_lights',
                          TrafficLightArray, self.traffic_cb)
-        #TODO CAEd: you may want to consider other image formats to feed into classifier
+        # TODO CAEd: consider other image formats to feed into classifier
         rospy.Subscriber('/image_color', Image, self.image_cb)
 
         config_string = rospy.get_param("/traffic_light_config")
@@ -51,21 +51,22 @@ class TLDetector(object):
             rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
-        #-----------------------------
         # CAEd: set up classifier
-        #------------------------------
-        model_location = rospy.get_param('~model_location', '../../../models/ssd_inception_v2_coco_11_06_2017/frozen_inference_graph.pb')
-        model_filter = rospy.get_param('~model_filter', 10)
-        min_score = rospy.get_param('~min_score', 0.5)
-        TL_color_method = rospy.get_param('~TL_color_method', 1)
-        TL_color_model = rospy.get_param('~TL_color_model', 'None')
-        roi_x = rospy.get_param('~roi_x', 0)
-        roi_y = rospy.get_param('~roi_y', 0)
-        roi_width = rospy.get_param('~roi_width', 800 )
-        roi_height = rospy.get_param('~roi_height', 600)
-        self.light_classifier = TLClassifier(model_location,model_filter, min_score,
-                            TL_color_method, TL_color_model,
-                            roi_x, roi_y, roi_width, roi_height)
+        # full_param_name = rospy.search_param('model_location')
+        # print("Full_Param Name: %s " % full_param_name)
+        model_location = rospy.get_param("/model_location", '../../../models/ssd_inception_v2_coco_11_06_2017/frozen_inference_graph.pb')
+        model_filter = rospy.get_param("/model_filter", 10)
+        min_score = rospy.get_param("/min_score", 0.5)
+        TL_color_method = rospy.get_param("/TL_color_method", 1)
+        TL_color_model = rospy.get_param("/TL_color_mode'", 'None')
+        roi_x = rospy.get_param("/roi_x", 0)
+        roi_y = rospy.get_param("/roi_y", 0)
+        roi_width = rospy.get_param("/roi_width", 800)
+        roi_height = rospy.get_param("/roi_height", 600)
+        self.light_classifier =\
+            TLClassifier(model_location, model_filter, min_score,
+                         TL_color_method, TL_color_model,
+                         roi_x, roi_y, roi_width, roi_height)
 
         self.listener = tf.TransformListener()
 
@@ -119,16 +120,23 @@ class TLDetector(object):
         of times till we start using it. Otherwise the previous stable state is
         used.
         '''
-        #TODO CAEd: update code to include slow-down when seeing yellow light
+        # TODO CAEd: update code to include slow-down when seeing yellow light
         if self.state != state:
             self.state_count = 0
             self.state = state
         elif self.state_count >= STATE_COUNT_THRESHOLD:
-            #if state == TrafficLight.RED: then stop
-            #elif state == TrafficLight.YELLOW: then slow down
-            # QUESTION: Should there be more logic for lining up with the line WP?
-            #elif state == TrafficLight.GREEN: then go
-            #else: ???
+            """
+            if state == TrafficLight.RED:
+                stop
+            elif state == TrafficLight.YELLOW:
+                slow down
+            QUESTION:
+            Should there be more logic for lining up with the line WP?
+
+            elif state == TrafficLight.GREEN:
+                go
+            else: ???
+            """
             self.last_state = self.state
             '''
             if light status is red or yellow, set the waypoint to line_wp
@@ -170,16 +178,14 @@ class TLDetector(object):
         Returns:
             int: ID of traffic light color (specified in
             styx_msgs/TrafficLight)
-
         """
 
-
-        # TODO: Is there a parameter for prelim testing vs using simulator vs using real data?
+        # TODO: Is there a parameter
+        # for prelim testing vs using simulator vs using real data?
         # For testing, just return the light state
         # rospy.logwarn("light state {}".format(light.state))
 
-
-        #TODO CAEd: implement section below when not testing.
+        # TODO CAEd: implement section below when not testing.
 
         if(not self.has_image):
             self.prev_light_loc = None
@@ -189,12 +195,14 @@ class TLDetector(object):
 
         # Get classification
         time0 = time.time()
-        detected_state =  self.light_classifier.get_classification(cv_image)
+        detected_state = self.light_classifier.get_classification(cv_image)
         time1 = time.time()
 
-        print("[tl_classifer::get_classification] Time in milliseconds: ", (time1 - time0) * 1000)
-        print("[tl_detector::get_light_state] Detected: %d, Actual: %d" % (detected_state, light.state))
-        
+        print("[tl_classifer::get_classification] Time in milliseconds: ",
+              (time1 - time0) * 1000)
+        print("[tl_detector::get_light_state] Detected: %d, Actual: %d" % (
+            detected_state, light.state))
+
         # CAEd: ONLY FOR TESTING
         detected_state = light.state
 
