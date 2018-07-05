@@ -1,16 +1,21 @@
 from styx_msgs.msg import TrafficLight
 import tensorflow as tf
 import numpy as np
-#from utilities import label_map_util
-#from utilities import visualization_utils as vis_util
-import time
+# from utilities import label_map_util
+# from utilities import visualization_utils as vis_util
+# import time
+
 
 class TLClassifier(object):
-    def __init__(self, graph_file, class_filter, min_score, TL_color_method, TL_color_model, roi_x, roi_y, roi_width, roi_height):
-
-        # TODO: Create switch for 2-step color detection method for traffic light
-        # defaulted to image processing based. need to add code for keras model (h5)
-        # TODO: add code to load keras model
+    def __init__(self, graph_file, class_filter, min_score,
+                 TL_color_method, TL_color_model,
+                 roi_x, roi_y, roi_width, roi_height):
+        """
+        TODO: Create switch for 2-step color detection method for traffic light
+        defaulted to image processing based.
+        need to add code for keras model (h5)
+        TODO: add code to load keras model
+        """
 
         self.min_score = min_score
         self.class_filter = class_filter
@@ -20,9 +25,9 @@ class TLClassifier(object):
         self.roi_y = roi_y
         self.roi_width = roi_width
         self.roi_height = roi_height
-        #---------------------
+
         # Load Classifier
-        #---------------------
+
         print("[tl_classifer::init] Loading classifer located at: %s" % graph_file)
         self.detection_graph = tf.Graph()
 
@@ -33,37 +38,36 @@ class TLClassifier(object):
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')
 
-        # -------------------------------
         # The following is related to the issue:
         # Crash: Could not create cuDNN handle when convnets are used
         # https://github.com/tensorflow/tensorflow/issues/6698
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
-        # -------------------------------
 
-        #---------------------
         # Start session as initialization takes up the most time.
         # Once loaded, detection is faster
-        #---------------------
         self.sess = tf.Session(graph=self.detection_graph, config=config)
 
         # The input placeholder for the image.
-        # `get_tensor_by_name` returns the Tensor with the associated name in the Graph.
+        # returns the Tensor with the associated name in the Graph.
         # Definite input and output Tensors for detection_graph
-        self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
+        self.image_tensor =\
+            self.detection_graph.get_tensor_by_name('image_tensor:0')
 
-        # Each box represents a part of the image where a particular object was detected.
-        self.detection_boxes = self.detection_graph.get_tensor_by_name('detection_boxes:0')
+        # Each box represents a particular object was detected.
+        self.detection_boxes =\
+            self.detection_graph.get_tensor_by_name('detection_boxes:0')
 
         # Each score represent how level of confidence for each of the objects.
         # Score is shown on the result image, together with the class label.
-        self.detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
+        self.detection_scores =\
+            self.detection_graph.get_tensor_by_name('detection_scores:0')
 
         # The classification of the object (integer id).
-        self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
+        self.detection_classes =\
+            self.detection_graph.get_tensor_by_name('detection_classes:0')
 
         print("[tl_classifer::init] Loaded Tensorflow Graph.")
-
 
     # CAEd: The following function is from the object detection lab
     def filter_boxes(self, boxes, scores, classes):
@@ -106,49 +110,50 @@ class TLClassifier(object):
             (specified in styx_msgs/TrafficLight)
 
         """
-        #-----------------------------------
         """CAEd Notes
         Few ways to approach this:
-            - Classical (what I am most familiar with) (2-step)detected_light_state
-                - Define ROIs in detected light image to isolate the three (Red/Yellow/Green) light locations
+            - Classical (what most familiar with) (2-step)detected_light_state
+                - Define ROIs in detected light image to isolate the three
+                  (Red/Yellow/Green) light locations
                 - Convert images to specific color spaces
                     -RGB to isolate Red and Green
                     -XXX to isolate yellow (like in find lane lines assignment)
                 - See which color is lit (brightest 3-space value)
             - Machine Learning (2-step)
                 - Similar to traffic signs Assignment
-                - Feed detected light image with associated label (from simulation data) to classifier
+                - Feed detected light image with associated label
+                      (from simulation data) to classifier
                 - Save H5 file when satisfied with training
                 - Load H5 during launch
             - Deep learning (1-step)
                 - Have one classifier that detects and classifies light
         """
-        #-----------------------------------
 
         detected_light_state = TrafficLight.UNKNOWN
-        #time0 = time.time()
+        # time0 = time.time()
 
         # Actual detection.
         with self.detection_graph.as_default():
             (boxes, scores, classes) = self.sess.run(
-                [self.detection_boxes, self.detection_scores, self.detection_classes],
+                [self.detection_boxes,
+                 self.detection_scores, self.detection_classes],
                 feed_dict={self.image_tensor: np.expand_dims(image, 0)})
 
         boxes = np.squeeze(boxes)
         scores = np.squeeze(scores)
         classes = np.squeeze(classes).astype(np.int32)
 
-
         if len(boxes) > 0:
             if self.class_filter > -1:
                 # implement 2-step traffic light detection
-                filtered_boxes, filtered_scores, filtered_classes = self.filter_boxes(boxes, scores, classes)
+                filtered_boxes, filtered_scores, filtered_classes =\
+                    self.filter_boxes(boxes, scores, classes)
                 if self.TL_color_method == 1:
-                    #TODO implement hard coded light detection
+                    # TODO implement hard coded light detection
                     # detected_light_state = detect_color(boxes, scores, classes)
                     pass
                 else:
-                    #feed ROI to another classifer to determine green/yellow/red/UNKNOWN
+                    # feed ROI to another classifer to determine green/yellow/red/UNKNOWN
                     # TODO implement
                     pass
             else:
@@ -162,8 +167,5 @@ class TLClassifier(object):
                     detected_light_state = TrafficLight.YELLOW
                 else:
                     detected_light_state = TrafficLight.UNKNOWN
-
-        #time1 = time.time()
-
-
+        # time1 = time.time()
         return detected_light_state
