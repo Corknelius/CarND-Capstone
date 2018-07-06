@@ -1,5 +1,31 @@
 <?xml version="1.0"?>
 <launch>
     <node pkg="tl_detector" type="tl_detector.py" name="tl_detector" output="screen" cwd="node"/>
+    <!--CAEd: Params added to load model and configuration into ROS-->
+    <!--model_location: relative path location to pre-trained model
+
+        model_filter:   if using out-of-box pretrain models,
+                        identify class number for traffic light.
+                        i.e. For models trained with coco dataset, TL class is 10. Light color will be determined using CV methods
+                        if using re-trained models (transfer learning), set to -1.
+
+       min_score:       mininimum score of detected class to be considered valid detection
+
+       TL_color_method: if model_filter is not set to -1, we typically would use the class information for color
+                        1 - if we are using pre-determine image processing
+                        2 - if we want to count the detected classes
+
+       roi_width:       Width of ROI to run detection on input image. In pixel units
+
+       roi_height:      Height of ROI to run detection on input image. In pixel units
+
+       image_adjust:     Switch on/off any pre-determined image adjustments to help with detection
+    -->    
+      <param name="model_location" type="str" value="../../../models/ssd_inception_v2_real_data/frozen_inference_graph.pb" />
+      <param name="model_filter" type="int" value="-1" />
+      <param name="min_score" type="double" value="0.5" />
+      <param name="TL_color_method" type="int" value="0" />
+      <param name="width" type="int" value="800" />
+      <param name="height" type="int" value="600" />
     <node pkg="tl_detector" type="light_publisher.py" name="light_publisher" output="screen" cwd="node"/>
 </launch>

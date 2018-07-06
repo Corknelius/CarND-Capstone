@@ -8,8 +8,7 @@ import numpy as np
 
 class TLClassifier(object):
     def __init__(self, graph_file, class_filter, min_score,
-                 TL_color_method, TL_color_model,
-                 roi_x, roi_y, roi_width, roi_height):
+                 TL_color_method, width, height):
         """
         TODO: Create switch for 2-step color detection method for traffic light
         defaulted to image processing based.
@@ -20,11 +19,9 @@ class TLClassifier(object):
         self.min_score = min_score
         self.class_filter = class_filter
         self.TL_color_method = TL_color_method
-        # TODO self.TL_color_model = TL_color_model
-        self.roi_x = roi_x
-        self.roi_y = roi_y
-        self.roi_width = roi_width
-        self.roi_height = roi_height
+
+        self.width = width
+        self.height = height
 
         # Load Classifier
 
@@ -84,7 +81,7 @@ class TLClassifier(object):
         return filtered_boxes, filtered_scores, filtered_classes
 
     # CAEd: The following function is from the object detection lab
-    def to_image_coords(self, boxes, height, width):
+    def to_image_coords(self, boxes):
         """
         The original box coordinate output is normalized, i.e [0, 1].
 
@@ -92,12 +89,80 @@ class TLClassifier(object):
         size.
         """
         box_coords = np.zeros_like(boxes)
-        box_coords[:, 0] = boxes[:, 0] * height
-        box_coords[:, 1] = boxes[:, 1] * width
-        box_coords[:, 2] = boxes[:, 2] * height
-        box_coords[:, 3] = boxes[:, 3] * width
+        box_coords[:, 0] = boxes[:, 0] * self.height
+        box_coords[:, 1] = boxes[:, 1] * self.width
+        box_coords[:, 2] = boxes[:, 2] * self.height
+        box_coords[:, 3] = boxes[:, 3] * self.width
 
         return box_coords
+
+
+    def detect_color(self, boxes):
+        green_count = 0
+        yellow_count = 0
+        red_count = 0
+        unknown_count = 0
+
+        detected_color = TrafficLight.UNKNOWN
+
+        img_boxes = self.to_image_coords(boxes)
+        n = len(classes)
+        for i in range(n):
+            detected_color = False
+
+            # TODO: determine method for detecting color of light given ROI
+            green_count = green_count + 1
+            yellow_count = yellow_count + 1
+            red_count = red_count + 1
+
+            if detected_color == false:
+                unknown_count = unknown_count + 1
+
+        if green_count > yellow_count and green_count > red_count and green_count > unknown_count:
+            detected_color = TrafficLight.GREEN
+        elif yellow_count > green_count and yellow_count > red_count and yellow_count > unknown_count:
+            detected_color = TrafficLight.YELLOW
+        elif red_count > green_count and red_count > yellow_count and green_count > unknown_count:
+            detected_color = TrafficLight.RED
+        else:
+            detected_color = TrafficLight.UNKNOWN
+
+        return detected_color
+
+    def count_color(self, classes):
+        green_count = 0
+        yellow_count = 0
+        red_count = 0
+        unknown_count = 0
+
+        detected_color = TrafficLight.UNKNOWN
+
+        n = len(classes)
+        for i in range(n):
+            class_detected = classes[i]
+            if class_detected == 1:
+                green_count = green_count + 1
+            elif class_detected == 2:
+                red_count = red_count + 1
+            elif class_detected == 3:
+                yellow_count = yellow_count + 1
+            else:
+                unknown_count = unknown_count + 1
+
+        if green_count > yellow_count and green_count > red_count and green_count > unknown_count:
+            detected_color = TrafficLight.GREEN
+            print( "[tl_classifer::count_color] Green")
+        elif yellow_count > green_count and yellow_count > red_count and yellow_count > unknown_count:
+            detected_color = TrafficLight.YELLOW
+            print( "[tl_classifer::count_color] Yellow")
+        elif red_count > green_count and red_count > yellow_count and green_count > unknown_count:
+            detected_color = TrafficLight.RED
+            print( "[tl_classifer::count_color] Red")
+        else:
+            detected_color = TrafficLight.UNKNOWN
+            print( "[tl_classifer::count_color] Unknown")
+
+        return detected_color
 
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
@@ -117,7 +182,8 @@ class TLClassifier(object):
                   (Red/Yellow/Green) light locations
                 - Convert images to specific color spaces
                     -RGB to isolate Red and Green
-                    -XXX to isolate yellow (like in find lane lines assignment)
+                    -XXX to isolate yellow (like in find l
+            if detected_color == false:ane lines assignment)
                 - See which color is lit (brightest 3-space value)
             - Machine Learning (2-step)
                 - Similar to traffic signs Assignment
@@ -130,7 +196,6 @@ class TLClassifier(object):
         """
 
         detected_light_state = TrafficLight.UNKNOWN
-        # time0 = time.time()
 
         # Actual detection.
         with self.detection_graph.as_default():
@@ -148,16 +213,17 @@ class TLClassifier(object):
                 # implement 2-step traffic light detection
                 filtered_boxes, filtered_scores, filtered_classes =\
                     self.filter_boxes(boxes, scores, classes)
-                if self.TL_color_method == 1:
-                    # TODO implement hard coded light detection
-                    # detected_light_state = detect_color(boxes, scores, classes)
-                    pass
-                else:
-                    # feed ROI to another classifer to determine green/yellow/red/UNKNOWN
-                    # TODO implement
-                    pass
+                detected_light_state = self.detect_color(boxes)
+            elif self.TL_color_method == 1:
+                # ignore most-confident model class and manually detect color
+                detected_light_state = self.detect_color(boxes)
+            elif self.TL_color_method == 2:
+                # model was pretrained to determine color of light as class,
+                # count most detected value
+                detected_light_state = self.count_color(classes)
             else:
-                # model was pretrained to determine color of light as class
+                # model was pretrained to determine color of light as class,
+                # get most confident value
                 most_confident_detection = classes[0]
                 if most_confident_detection == 1:
                     detected_light_state = TrafficLight.GREEN
@@ -167,5 +233,5 @@ class TLClassifier(object):
                     detected_light_state = TrafficLight.YELLOW
                 else:
                     detected_light_state = TrafficLight.UNKNOWN
-        # time1 = time.time()
+
         return detected_light_state
