@@ -34,6 +34,24 @@ class TLClassifier(object):
                 serialized_graph = fid.read()
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')
+            # The input placeholder for the image.
+            # returns the Tensor with the associated name in the Graph.
+            # Definite input and output Tensors for detection_graph
+            self.image_tensor =\
+                self.detection_graph.get_tensor_by_name('image_tensor:0')
+
+            # Each box represents a particular object was detected.
+            self.detection_boxes =\
+                self.detection_graph.get_tensor_by_name('detection_boxes:0')
+
+            # Each score represent how level of confidence for each of the objects.
+            # Score is shown on the result image, together with the class label.
+            self.detection_scores =\
+                self.detection_graph.get_tensor_by_name('detection_scores:0')
+
+            # The classification of the object (integer id).
+            self.detection_classes =\
+                self.detection_graph.get_tensor_by_name('detection_classes:0')
 
         # The following is related to the issue:
         # Crash: Could not create cuDNN handle when convnets are used
@@ -44,25 +62,6 @@ class TLClassifier(object):
         # Start session as initialization takes up the most time.
         # Once loaded, detection is faster
         self.sess = tf.Session(graph=self.detection_graph, config=config)
-
-        # The input placeholder for the image.
-        # returns the Tensor with the associated name in the Graph.
-        # Definite input and output Tensors for detection_graph
-        self.image_tensor =\
-            self.detection_graph.get_tensor_by_name('image_tensor:0')
-
-        # Each box represents a particular object was detected.
-        self.detection_boxes =\
-            self.detection_graph.get_tensor_by_name('detection_boxes:0')
-
-        # Each score represent how level of confidence for each of the objects.
-        # Score is shown on the result image, together with the class label.
-        self.detection_scores =\
-            self.detection_graph.get_tensor_by_name('detection_scores:0')
-
-        # The classification of the object (integer id).
-        self.detection_classes =\
-            self.detection_graph.get_tensor_by_name('detection_classes:0')
 
         print("[tl_classifer::init] Loaded Tensorflow Graph.")
 
@@ -199,10 +198,11 @@ class TLClassifier(object):
 
         # Actual detection.
         with self.detection_graph.as_default():
+            img_expanded = np.expand_dims(image, axis=0)
             (boxes, scores, classes) = self.sess.run(
                 [self.detection_boxes,
                  self.detection_scores, self.detection_classes],
-                feed_dict={self.image_tensor: np.expand_dims(image, 0)})
+                feed_dict={self.image_tensor: img_expanded})
 
         boxes = np.squeeze(boxes)
         scores = np.squeeze(scores)

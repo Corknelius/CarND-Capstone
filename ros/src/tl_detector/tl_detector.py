@@ -190,12 +190,12 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
         # Get classification
-        #time0 = time.time()
+        time0 = time.time()
         detected_state = self.light_classifier.get_classification(cv_image)
-        #time1 = time.time()
+        time1 = time.time()
 
-        #print("[tl_classifer::get_classification] Time in milliseconds: ",
-    #          (time1 - time0) * 1000)
+        print("[tl_classifer::get_classification] Time in milliseconds: ",
+              (time1 - time0) * 1000)
         print("[tl_detector::get_light_state] Detected: %d, Actual: %d" % (
             detected_state, light.state))
 
