@@ -57,16 +57,12 @@ class TLDetector(object):
         model_location = rospy.get_param("/model_location", '../../../models/ssd_inception_v2_coco_11_06_2017/frozen_inference_graph.pb')
         model_filter = rospy.get_param("/model_filter", 10)
         min_score = rospy.get_param("/min_score", 0.5)
-        TL_color_method = rospy.get_param("/TL_color_method", 1)
-        TL_color_model = rospy.get_param("/TL_color_mode'", 'None')
-        roi_x = rospy.get_param("/roi_x", 0)
-        roi_y = rospy.get_param("/roi_y", 0)
-        roi_width = rospy.get_param("/roi_width", 800)
-        roi_height = rospy.get_param("/roi_height", 600)
+        TL_color_method = rospy.get_param("/TL_color_method", 0)
+        width = rospy.get_param("/width", 800)
+        height = rospy.get_param("/height", 600)
         self.light_classifier =\
             TLClassifier(model_location, model_filter, min_score,
-                         TL_color_method, TL_color_model,
-                         roi_x, roi_y, roi_width, roi_height)
+                         TL_color_method, width, height)
 
         self.listener = tf.TransformListener()
 
@@ -78,7 +74,7 @@ class TLDetector(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(2)
         while not rospy.is_shutdown():
 
             # TODO: will need to process traffic lights
@@ -204,7 +200,7 @@ class TLDetector(object):
             detected_state, light.state))
 
         # CAEd: ONLY FOR TESTING
-        detected_state = light.state
+        #detected_state = light.state
 
         return detected_state
 
