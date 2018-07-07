@@ -60,8 +60,9 @@ class TLDetector(object):
                 '../../../models/ssd_sim/frozen_inference_graph.pb')
         else:
             model_location = rospy.get_param(
-                "/sim_model_path",
+                "/real_model_path",
                 '../../../models/ssd_real/frozen_inference_graph.pb')
+
         model_filter = rospy.get_param("/model_filter", 10)
         min_score = rospy.get_param("/min_score", 0.5)
         width = rospy.get_param("/width", 800)
@@ -80,12 +81,9 @@ class TLDetector(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(2)
+        rate = rospy.Rate(5)
         while not rospy.is_shutdown():
-
-            # TODO: will need to process traffic lights
             self.publish_traffic_light()
-
             rate.sleep()
 
     def pose_cb(self, msg):
