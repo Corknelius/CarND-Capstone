@@ -111,17 +111,4 @@ rviz_config/
 
 ros/src/CMakeLists\.txt
 
-models/backup
-models/faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017
-models/faster_rcnn_resnet101_coco_11_06_2017
-models/rfcn_resnet101_coco_11_06_2017
-models/ssd_inception_v2_coco_11_06_2017
-models/ssd_mobilenet_v1_coco_11_06_2017
-
-models/ssd_inception_v2_real_data/
-
-models/ssd_mobilenet_v1_real_data/
-
-models/ssd_TBD_vX_sim_data/
-
-ros/src/waypoint_follower/src/pure_pursuit_core\.cpp
+models/*
