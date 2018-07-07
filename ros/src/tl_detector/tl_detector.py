@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 import rospy
 from std_msgs.msg import Int32
-from geometry_msgs.msg import PoseStamped, Pose
+from geometry_msgs.msg import PoseStamped
 from styx_msgs.msg import TrafficLightArray, TrafficLight
 from styx_msgs.msg import Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from light_classification.tl_classifier import TLClassifier
 import tf
-import cv2
 import yaml
 from scipy.spatial import KDTree
 import time
 
 STATE_COUNT_THRESHOLD = 3
+IS_SIM = True
 
 
 class TLDetector(object):
@@ -54,15 +54,22 @@ class TLDetector(object):
         # CAEd: set up classifier
         # full_param_name = rospy.search_param('model_location')
         # print("Full_Param Name: %s " % full_param_name)
-        model_location = rospy.get_param("/model_location", '../../../models/ssd_inception_v2_coco_11_06_2017/frozen_inference_graph.pb')
+        if IS_SIM:
+            model_location = rospy.get_param(
+                "/sim_model_path",
+                '../../../models/ssd_sim/frozen_inference_graph.pb')
+        else:
+            model_location = rospy.get_param(
+                "/real_model_path",
+                '../../../models/ssd_real/frozen_inference_graph.pb')
+
         model_filter = rospy.get_param("/model_filter", 10)
         min_score = rospy.get_param("/min_score", 0.5)
-        TL_color_method = rospy.get_param("/TL_color_method", 0)
         width = rospy.get_param("/width", 800)
         height = rospy.get_param("/height", 600)
         self.light_classifier =\
-            TLClassifier(model_location, model_filter, min_score,
-                         TL_color_method, width, height)
+            TLClassifier(model_location, model_filter,
+                         min_score, width, height)
 
         self.listener = tf.TransformListener()
 
@@ -74,12 +81,9 @@ class TLDetector(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(2)
+        rate = rospy.Rate(5)
         while not rospy.is_shutdown():
-
-            # TODO: will need to process traffic lights
             self.publish_traffic_light()
-
             rate.sleep()
 
     def pose_cb(self, msg):
@@ -116,28 +120,11 @@ class TLDetector(object):
         of times till we start using it. Otherwise the previous stable state is
         used.
         '''
-        # TODO CAEd: update code to include slow-down when seeing yellow light
         if self.state != state:
             self.state_count = 0
             self.state = state
         elif self.state_count >= STATE_COUNT_THRESHOLD:
-            """
-            if state == TrafficLight.RED:
-                stop
-            elif state == TrafficLight.YELLOW:
-                slow down
-            QUESTION:
-            Should there be more logic for lining up with the line WP?
-
-            elif state == TrafficLight.GREEN:
-                go
-            else: ???
-            """
             self.last_state = self.state
-            '''
-            if light status is red or yellow, set the waypoint to line_wp
-            otherwise, -1
-            '''
             line_wp = line_wp if state == TrafficLight.RED else -1
 
             self.last_wp = line_wp
@@ -157,10 +144,6 @@ class TLDetector(object):
             int: index of the closest waypoint in self.waypoints
 
         """
-        # TODO implement
-        # CAEd walkthrough recommends reuse code from section 1 KD Trees
-        # CAEd: Not sure what exactly needs to be implemented. KD tree is
-        # being used and function is properly called.
         closest_dx = self.waypoint_tree.query([x, y], 1)[1]
 
         return closest_dx
@@ -175,14 +158,6 @@ class TLDetector(object):
             int: ID of traffic light color (specified in
             styx_msgs/TrafficLight)
         """
-
-        # TODO: Is there a parameter
-        # for prelim testing vs using simulator vs using real data?
-        # For testing, just return the light state
-        # rospy.logwarn("light state {}".format(light.state))
-
-        # TODO CAEd: implement section below when not testing.
-
         if(not self.has_image):
             self.prev_light_loc = None
             return False
@@ -198,10 +173,6 @@ class TLDetector(object):
               (time1 - time0) * 1000)
         print("[tl_detector::get_light_state] Detected: %d, Actual: %d" % (
             detected_state, light.state))
-
-        # CAEd: ONLY FOR TESTING
-        #detected_state = light.state
-
         return detected_state
 
     def process_traffic_lights(self):
