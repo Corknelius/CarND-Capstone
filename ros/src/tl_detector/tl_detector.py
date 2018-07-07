@@ -13,6 +13,7 @@ from scipy.spatial import KDTree
 import time
 
 STATE_COUNT_THRESHOLD = 3
+IS_SIM = True
 
 
 class TLDetector(object):
@@ -53,17 +54,21 @@ class TLDetector(object):
         # CAEd: set up classifier
         # full_param_name = rospy.search_param('model_location')
         # print("Full_Param Name: %s " % full_param_name)
-        model_location = rospy.get_param(
-            "/model_location",
-            '../../../models/ssd_inception_v2/frozen_inference_graph.pb')
+        if IS_SIM:
+            model_location = rospy.get_param(
+                "/sim_model_path",
+                '../../../models/ssd_sim/frozen_inference_graph.pb')
+        else:
+            model_location = rospy.get_param(
+                "/sim_model_path",
+                '../../../models/ssd_real/frozen_inference_graph.pb')
         model_filter = rospy.get_param("/model_filter", 10)
         min_score = rospy.get_param("/min_score", 0.5)
-        TL_color_method = rospy.get_param("/TL_color_method", 0)
         width = rospy.get_param("/width", 800)
         height = rospy.get_param("/height", 600)
         self.light_classifier =\
-            TLClassifier(model_location, model_filter, min_score,
-                         TL_color_method, width, height)
+            TLClassifier(model_location, model_filter,
+                         min_score, width, height)
 
         self.listener = tf.TransformListener()
 
