@@ -14,6 +14,15 @@ drive Carla, the Udacity self-driving car, around a test track.
 | Cory Yee                                |   corknelius@gmail.com            |
 
 
+## How to use
+
+Download two models for simulation and real test site seperately
+* [model on simulation](https://drive.google.com/file/d/1YP6C3o99hsf5OnrmUUOyfr1hCVe0Ki-v/view)
+* [model on real site](https://drive.google.com/open?id=1qqaZhvvibPlvZVOzsUe3Ts3EWFrdYOqz)
+
+Rename both models to `frozen_inference_graph.pb` and put them in folder `models/ssd_sim` or
+`models/ssd_real` seperately. (please create the folder if it does not exist)
+
 [//]: # (Image References)
 
 [image1]: ./imgs/components.png "Self-driving Car System Components"

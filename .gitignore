@@ -110,5 +110,4 @@ rosbags/
 rviz_config/
 
 ros/src/CMakeLists\.txt
-
-models/*
+*.pb
